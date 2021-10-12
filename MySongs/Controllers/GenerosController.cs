@@ -59,7 +59,7 @@ namespace MySongs.Controllers
             {
                 _context.Add(genero);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index)); //redireciona caso esteja salvo com sucesso
             }
             return View(genero);
         }
