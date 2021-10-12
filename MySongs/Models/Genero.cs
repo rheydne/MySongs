@@ -16,6 +16,9 @@ namespace MySongs.Models
 
         [Display(Name = "Nome")]
         [Required(ErrorMessage = "Obrigatório informar o nome!")]
+
         public string Nome { get; set; }
+
+        public ICollection<Musica> Musicas { get; set; }
     }
 }

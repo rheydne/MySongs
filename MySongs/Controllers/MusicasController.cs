@@ -9,22 +9,23 @@ using MySongs.Models;
 
 namespace MySongs.Controllers
 {
-    public class GenerosController : Controller
+    public class MusicasController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public GenerosController(ApplicationDbContext context)
+        public MusicasController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Generos
+        // GET: Musicas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Generos.ToListAsync()); //select * from generos
+            var applicationDbContext = _context.Musicas.Include(m => m.Genero);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Generos/Details/5
+        // GET: Musicas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,39 +33,42 @@ namespace MySongs.Controllers
                 return NotFound();
             }
 
-            var genero = await _context.Generos
+            var musica = await _context.Musicas
+                .Include(m => m.Genero)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (genero == null)
+            if (musica == null)
             {
                 return NotFound();
             }
 
-            return View(genero);
+            return View(musica);
         }
 
-        // GET: Generos/Create
+        // GET: Musicas/Create
         public IActionResult Create()
         {
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome");
             return View();
         }
 
-        // POST: Generos/Create
+        // POST: Musicas/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome")] Genero genero)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Duracao,DataLancamento,GeneroId")] Musica musica)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(genero);
+                _context.Add(musica);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index)); //redireciona caso esteja salvo com sucesso
+                return RedirectToAction(nameof(Index));
             }
-            return View(genero);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+            return View(musica);
         }
 
-        // GET: Generos/Edit/5
+        // GET: Musicas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,22 +76,23 @@ namespace MySongs.Controllers
                 return NotFound();
             }
 
-            var genero = await _context.Generos.FindAsync(id);
-            if (genero == null)
+            var musica = await _context.Musicas.FindAsync(id);
+            if (musica == null)
             {
                 return NotFound();
             }
-            return View(genero);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+            return View(musica);
         }
 
-        // POST: Generos/Edit/5
+        // POST: Musicas/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome")] Genero genero)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Duracao,DataLancamento,GeneroId")] Musica musica)
         {
-            if (id != genero.Id)
+            if (id != musica.Id)
             {
                 return NotFound();
             }
@@ -96,12 +101,12 @@ namespace MySongs.Controllers
             {
                 try
                 {
-                    _context.Update(genero);
+                    _context.Update(musica);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GeneroExists(genero.Id))
+                    if (!MusicaExists(musica.Id))
                     {
                         return NotFound();
                     }
@@ -112,10 +117,11 @@ namespace MySongs.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(genero);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+            return View(musica);
         }
 
-        // GET: Generos/Delete/5
+        // GET: Musicas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -123,30 +129,31 @@ namespace MySongs.Controllers
                 return NotFound();
             }
 
-            var genero = await _context.Generos
+            var musica = await _context.Musicas
+                .Include(m => m.Genero)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (genero == null)
+            if (musica == null)
             {
                 return NotFound();
             }
 
-            return View(genero);
+            return View(musica);
         }
 
-        // POST: Generos/Delete/5
+        // POST: Musicas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var genero = await _context.Generos.FindAsync(id);
-            _context.Generos.Remove(genero);
+            var musica = await _context.Musicas.FindAsync(id);
+            _context.Musicas.Remove(musica);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GeneroExists(int id)
+        private bool MusicaExists(int id)
         {
-            return _context.Generos.Any(e => e.Id == id);
+            return _context.Musicas.Any(e => e.Id == id);
         }
     }
 }
